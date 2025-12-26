@@ -1,4 +1,3 @@
-````md
 # Kodo
 
 Kodo is a real-time chat application built with **Flutter** and **Firebase**.  
