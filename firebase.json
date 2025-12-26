@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"gdsc-kodo","appId":"1:811055476484:android:15d7d40b94a97e452eaa51","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"gdsc-kodo","configurations":{"android":"1:811055476484:android:15d7d40b94a97e452eaa51","ios":"1:811055476484:ios:a5997a6b01b7e5332eaa51"}}}}}}
