@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kodo/core/routing/app_routes.dart';
 import 'package:kodo/src/providers/onboarding/register_page_controller.dart';
-import 'package:kodo/src/screens/onboarding/profile_setup_page.dart';
 import 'package:kodo/src/services/auth_service.dart';
 import 'package:kodo/src/state/onboarding/register_page_state.dart';
 import 'package:kodo/src/widgets/icon_buttons.dart';
@@ -155,9 +154,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   password: state.password,
                                 );
                                 if (!mounted) return;
-                                Navigator.of(
-                                  context,
-                                ).pushNamed(ProfileSetupPage.routeName);
+                                context.push(AppRoutes.profileSetup);
                               } on FirebaseAuthException catch (e) {
                                 controller.setError(e.message ?? "");
                               } finally {
@@ -180,7 +177,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
             Center(
               child: TextButton(
-                onPressed: () => context.push(AppRoutes.login),
+                onPressed: () => context.pushReplacement(AppRoutes.login),
                 child: Text(
                   "Already have an account? Login.",
                   style: Theme.of(
@@ -207,6 +204,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           controller: emailController,
           textInputType: TextInputType.emailAddress,
           focusNode: emailFocusNode,
+          maxLines: 1,
           labelText: "Email",
           onSubmitted: () =>
               FocusScope.of(context).requestFocus(passwordFocusNode),
@@ -224,6 +222,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           controller: passwordController,
           textInputType: TextInputType.visiblePassword,
           focusNode: passwordFocusNode,
+          maxLines: 1,
           labelText: "Password",
           onSubmitted: () {},
           onChanged: (value) {

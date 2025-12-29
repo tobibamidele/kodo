@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kodo/src/models/user_model.dart';
+import 'package:kodo/src/services/auth_service.dart';
 
 class KodoUserService {
   final _auth = FirebaseAuth.instance;
@@ -42,8 +43,8 @@ class KodoUserService {
     }
   }
 
-  /// Get user profile
-  Stream<DocumentSnapshot> getUser(String userId) {
+  /// Returns a stream of user data
+  Stream<DocumentSnapshot> getUserStream(String userId) {
     return _users.doc(userId).snapshots();
   }
 
@@ -58,12 +59,32 @@ class KodoUserService {
     });
   }
 
-  /// Returns user data if user exists, else null
+  /// Returns a user queried by id
+  Future<KodoUser?> getUserById(String id) async {
+    final query = await _users.where('id', isEqualTo: id).limit(1).get();
+
+    if (query.docs.isEmpty) return null;
+
+    return KodoUser.fromDoc(query.docs.first);
+  }
+
+  /// Returns user queried by username
   Future<KodoUser?> getUserByUsername(String username) async {
     final query = await _users
         .where('username', isEqualTo: username.toLowerCase().trim())
         .limit(1)
         .get();
+
+    if (query.docs.isEmpty) return null;
+
+    return KodoUser.fromDoc(query.docs.first);
+  }
+
+  /// Gets the current user info
+  Future<KodoUser?> getCurrentUser() async {
+    final uid = AuthService.currentUser?.uid;
+    if (uid == null) return null;
+    final query = await _users.where('id', isEqualTo: uid).limit(1).get();
 
     if (query.docs.isEmpty) return null;
 

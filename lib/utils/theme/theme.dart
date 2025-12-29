@@ -23,6 +23,8 @@ class KodoTheme {
       ChatColors(
         myMessage: Colors.green.shade600,
         otherMessage: Color(0xFFBDC7C7).withOpacity(0.5),
+        myReplyMessage: Colors.green.shade200,
+        otherReplyMessage: Colors.grey.shade500,
       ),
     ],
     // primaryColor: Colors.black12,
@@ -53,6 +55,8 @@ class KodoTheme {
       ChatColors(
         myMessage: Colors.green.shade900,
         otherMessage: Colors.grey.shade900,
+        myReplyMessage: Colors.green.shade600,
+        otherReplyMessage: Colors.grey.shade600,
       ),
     ],
     // primaryColor: Colors.white12,

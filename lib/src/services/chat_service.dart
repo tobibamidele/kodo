@@ -95,6 +95,9 @@ class ChatService {
     required MessageType type,
     String? content,
     String? mediaUrl,
+    bool isReply = false,
+    String? replyMessageId,
+    MessageType? replyMessageType,
   }) async {
     final senderId = _auth.currentUser!.uid;
 
@@ -112,6 +115,8 @@ class ChatService {
       isDelivered: true,
       isForwarded: false,
       isEdited: false,
+      isReply: isReply,
+      replyMessageId: replyMessageId,
       reactions: {},
       createdAt: Timestamp.now(),
     );

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:kodo/src/models/message_model.dart';
 import 'package:kodo/src/services/auth_service.dart';
 
 String formatTime(DateTime time) {
@@ -25,4 +26,15 @@ Timestamp parseTimestamp(dynamic value) {
     return Timestamp.fromDate(DateTime.parse(value));
   }
   throw Exception('Invalid timestamp type: ${value.runtimeType}');
+}
+
+String getMessageById(String? msgId, List<Message> messages) {
+  if (msgId == null) return "";
+  // Loop through the list of messages and get the id
+  for (var msg in messages) {
+    if (msg.id == msgId) {
+      return msg.content ?? '';
+    }
+  }
+  return "";
 }

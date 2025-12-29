@@ -22,7 +22,8 @@ class ChatTileModel {
     required this.unreadCount,
   });
 
-  factory ChatTileModel.fromMap(Map<String, dynamic> data) {
+  factory ChatTileModel.fromMap(Map map) {
+    final data = Map<String, dynamic>.from(map);
     return ChatTileModel(
       chatId: data['chatId'],
       otherUser: KodoUser.fromMap(data['otherUser']),

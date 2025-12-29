@@ -23,6 +23,9 @@ dependencies:
   local_auth: ^3.0.0
   shared_preferences: ^2.5.4
   visibility_detector: ^0.4.0
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^7.1.4
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:

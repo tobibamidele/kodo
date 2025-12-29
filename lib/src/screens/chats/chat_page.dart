@@ -108,6 +108,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                   final msg = state.messages[index];
                   return MessageBubble(
                     controller: controller,
+                    state: state,
                     message: msg,
                     isMe: msg.senderId == myUid,
                   );
@@ -116,10 +117,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
             ),
             InputBar(
               state: state,
-              onSend: (text) {
+              controller: controller,
+              onSend: (text, id) {
                 controller.sendText(
                   receiverId: widget.args.otherUser.id,
                   text: text,
+                  replyMessageId: id,
                 );
               },
             ),

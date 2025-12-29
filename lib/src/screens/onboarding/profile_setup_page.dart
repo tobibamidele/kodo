@@ -141,7 +141,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                               );
                               if (!mounted) return;
 
-                              context.goNamed(AppRoutes.home);
+                              context.pushReplacement(AppRoutes.home);
                             } catch (e) {
                               controller.setError(e.toString());
                             } finally {
@@ -217,16 +217,17 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
             controller.setError("");
           },
         ),
-        Expanded(
-          child: Row(
-            children: [
-              const Spacer(),
-              Text(
-                "${state.about.trim().length.toString()}/150",
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ],
-          ),
+        SizedBox(height: 5),
+        Row(
+          children: [
+            const Spacer(),
+            Text(
+              "${state.about.trim().length.toString()}/150",
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall!.copyWith(fontSize: 12),
+            ),
+          ],
         ),
       ],
     );

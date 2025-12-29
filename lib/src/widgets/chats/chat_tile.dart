@@ -18,19 +18,18 @@ class ChatTile extends StatelessWidget {
   final ChatService _chatService = ChatService.instance;
 
   void _navigateToChat(BuildContext context) async {
+    // Check if chat is locked and attempt to authenticate if it is
+    if (await _chatService.isChatLocked(id: chat.chatId)) {
+      final authenticated = await _biometricService.authenticate("");
+      if (!authenticated) return;
+    }
+
+    // Get the chat details
     final chatModel = await ChatService().getOrCreateChat(
       myUid: AuthService.currentUser!.uid,
       otherUser: chat.otherUser,
     );
     final args = ChatPageArguments(chat: chatModel, otherUser: chat.otherUser);
-
-    // Check if chat is locked and attempt to authenticate if it is
-    if (await _chatService.isChatLocked(id: chat.chatId)) {
-      final authenticated = await _biometricService.authenticate(
-        "Verify fingerprint to open this chat",
-      );
-      if (!authenticated) return;
-    }
 
     if (!context.mounted) return;
     context.push(AppRoutes.chat, extra: args);

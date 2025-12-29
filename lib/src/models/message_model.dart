@@ -40,6 +40,12 @@ class Message {
   /// Edited tag
   final bool isEdited;
 
+  /// Reply tag
+  final bool isReply;
+
+  /// Reply message Id
+  final String? replyMessageId;
+
   /// Emoji => List of userIds
   final Map<String, List<String>> reactions;
 
@@ -61,6 +67,8 @@ class Message {
     required this.isDelivered,
     required this.isForwarded,
     required this.isEdited,
+    required this.isReply,
+    this.replyMessageId,
     required this.reactions,
     required this.createdAt,
     this.editedAt,
@@ -81,6 +89,8 @@ class Message {
       isDelivered: data['isDelivered'],
       isForwarded: data['isForwarded'] ?? false,
       isEdited: data['isEdited'] ?? false,
+      isReply: data['isReply'] ?? false,
+      replyMessageId: data['replyMessageId'],
       reactions: Map<String, List<String>>.from(
         (data['reactions'] ?? {}).map(
           (k, v) => MapEntry(k, List<String>.from(v)),
@@ -107,6 +117,8 @@ class Message {
       isDelivered: data['isDelivered'],
       isForwarded: data['isForwarded'] ?? false,
       isEdited: data['isEdited'] ?? false,
+      isReply: data['isReply'] ?? false,
+      replyMessageId: data['replyMessageId'],
       reactions: Map<String, List<String>>.from(
         (data['reactions'] ?? {}).map(
           (k, v) => MapEntry(k, List<String>.from(v)),

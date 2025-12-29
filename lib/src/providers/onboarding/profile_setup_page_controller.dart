@@ -42,7 +42,7 @@ class ProfileSetupPageController extends AsyncNotifier<ProfileSetupPageState> {
       return "Display name should be at least 2 characters long.";
     }
 
-    if (displayNameRegex.hasMatch(name.trim())) {
+    if (!displayNameRegex.hasMatch(name.trim())) {
       // Regex matches
       return "Display name cannot contain numbers or symbols, only spaces allowed.";
     }
@@ -65,12 +65,14 @@ class ProfileSetupPageController extends AsyncNotifier<ProfileSetupPageState> {
   void _updateButtonState() {
     final usernameError = isUsernameValid(state.value!.username);
     if (usernameError != null) {
+      print("Username error: $usernameError");
       state = AsyncData(state.value!.copyWith(error: usernameError));
       return;
     }
 
     final displayNameError = isDisplayNameValid(state.value!.displayName);
     if (displayNameError != null) {
+      print("Display name error: $displayNameError");
       state = AsyncData(state.value!.copyWith(error: displayNameError));
       return;
     }
@@ -78,6 +80,7 @@ class ProfileSetupPageController extends AsyncNotifier<ProfileSetupPageState> {
     final aboutError = isAboutValid(state.value!.about);
     if (aboutError != null) {
       // Kinda looking like go😂
+      print("About error: $aboutError");
       state = AsyncData(state.value!.copyWith(error: aboutError));
       return;
     }
@@ -97,11 +100,9 @@ class ProfileSetupPageController extends AsyncNotifier<ProfileSetupPageState> {
   }
 
   void setAbout(String about) {
-    if (state.value!.about.length > 150) {
-      return;
-    }
     state = AsyncData(state.value!.copyWith(about: about));
     _updateButtonState();
+    print("State: ${state.value!.isButtonEnabled}");
   }
 
   void setError(String error) {

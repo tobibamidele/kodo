@@ -3,23 +3,50 @@ import 'package:go_router/go_router.dart';
 import 'package:kodo/src/models/message_model.dart';
 import 'package:kodo/src/providers/chats/chat_page_controller.dart';
 import 'package:kodo/src/services/auth_service.dart';
+import 'package:kodo/src/state/chats/chat_page_state.dart';
 import 'package:kodo/src/widgets/bottom_modal.dart';
 import 'package:kodo/src/widgets/emoji_row.dart';
 import 'package:kodo/src/widgets/message_reactions.dart';
 import 'package:kodo/utils/helpers.dart';
 import 'package:kodo/utils/theme/extensions/chat_colors.dart';
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulWidget {
+  final ChatPageState state;
   final ChatPageController controller;
   final Message message;
   final bool isMe;
 
   const MessageBubble({
     super.key,
+    required this.state,
     required this.controller,
     required this.message,
     required this.isMe,
   });
+
+  @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble> {
+  static const int collapsedLines = 10;
+  bool isExpanded = false;
+
+  /// Detects if text will overflow
+  bool _isTextOverflowing(
+    String text,
+    TextStyle style,
+    double maxWidth,
+    int maxLines,
+  ) {
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: maxLines,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: maxWidth);
+
+    return tp.didExceedMaxLines;
+  }
 
   void showMessageModal(BuildContext context, Message msg) {
     // final backgroundColor = Theme.of(context)
@@ -39,7 +66,7 @@ class MessageBubble extends StatelessWidget {
                   // const SizedBox(height: 10),
                   _MessageModalContent(
                     msg: msg,
-                    controller: controller,
+                    controller: widget.controller,
                     onDismiss: dismiss,
                   ),
                 ],
@@ -59,22 +86,24 @@ class MessageBubble extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onLongPress: () {
-          showMessageModal(context, message);
+          showMessageModal(context, widget.message);
         },
         child: Align(
-          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             padding: const EdgeInsets.all(12),
             constraints: const BoxConstraints(maxWidth: 280),
             decoration: BoxDecoration(
-              color: isMe ? chatColors.myMessage : chatColors.otherMessage,
+              color: widget.isMe
+                  ? chatColors.myMessage
+                  : chatColors.otherMessage,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (message.isEdited) ...[
+                if (widget.message.isEdited) ...[
                   Text(
                     'Edited',
                     style: Theme.of(
@@ -83,9 +112,33 @@ class MessageBubble extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                 ],
+                if (widget.message.isReply) ...[
+                  Container(
+                    decoration: BoxDecoration(
+                      color: widget.isMe
+                          ? chatColors.myReplyMessage
+                          : chatColors.otherReplyMessage,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                    child: Text(
+                      getMessageById(
+                        widget.message.replyMessageId,
+                        widget.state.messages,
+                      ),
+                      maxLines: 3,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 Text(
-                  message.content ?? '',
+                  widget.message.content ?? '',
                   style: TextStyle(color: Colors.white),
+                  maxLines: isExpanded ? null : collapsedLines,
+                  overflow: isExpanded
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 6),
                 Row(
@@ -94,24 +147,61 @@ class MessageBubble extends StatelessWidget {
                   children: [
                     Text(
                       formatTime(
-                        message.isEdited
-                            ? message.editedAt!
+                        widget.message.isEdited
+                            ? widget.message.editedAt!
                                   .toDate() // Edited at cannot be null if isEdited is true
-                            : message.createdAt.toDate(),
+                            : widget.message.createdAt.toDate(),
                       ),
                       style: Theme.of(
                         context,
-                      ).textTheme.bodySmall!.copyWith(fontSize: 10),
+                      ).textTheme.bodySmall!.copyWith(fontSize: 12),
+                    ),
+
+                    const SizedBox(width: 10),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final text = widget.message.content ?? '';
+                        final style = const TextStyle(color: Colors.white);
+
+                        final _overflows = _isTextOverflowing(
+                          text,
+                          style,
+                          constraints.maxWidth,
+                          collapsedLines,
+                        );
+                        if (!_overflows || isExpanded) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isExpanded = true;
+                            });
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Text(
+                              'Read more',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
 
                 MessageReactions(
-                  reactions: message.reactions,
+                  reactions: widget.message.reactions,
                   currentUid: userId,
                   onTap: (emoji) async {
-                    await controller.toggleReaction(
-                      messageId: message.id,
+                    await widget.controller.toggleReaction(
+                      messageId: widget.message.id,
                       emoji: emoji,
                     );
                   },
@@ -141,21 +231,27 @@ class _MessageModalContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // The message itself
-        FractionallySizedBox(
-          widthFactor: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardTheme.color!.withOpacity(0.5),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-            child: Text(
-              msg.content ?? '',
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
+        if (msg.content == null) ...[
+          const SizedBox.shrink(),
+        ] else ...[
+          FractionallySizedBox(
+            widthFactor: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color!.withOpacity(0.5),
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              child: Text(
+                msg.content!,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.left,
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
-        ),
+        ],
 
         const SizedBox(height: 20),
 
@@ -189,6 +285,7 @@ class _MessageModalContent extends StatelessWidget {
           trailing: Icon(Icons.reply_outlined),
           onTap: () {
             onDismiss();
+            controller.setReplyMessageId(msg.id); // Set the reply message id
           },
           title: Text(
             'Reply',

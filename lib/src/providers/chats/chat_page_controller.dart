@@ -57,6 +57,10 @@ class ChatPageController extends _$ChatPageController {
     state = AsyncData(state.value!.copyWith(isAtBottom: value));
   }
 
+  void setReplyMessageId(String? messageId) {
+    state = AsyncData(state.value!.copyWith(replyMessageId: messageId));
+  }
+
   Stream<List<Message>> messagesStream() {
     return _chatService.getMessages(chat.id);
   }
@@ -64,6 +68,7 @@ class ChatPageController extends _$ChatPageController {
   Future<void> sendText({
     required String receiverId,
     required String text,
+    String? replyMessageId,
   }) async {
     if (text.trim().isEmpty) return;
 
@@ -74,6 +79,8 @@ class ChatPageController extends _$ChatPageController {
       receiverId: receiverId,
       type: MessageType.text,
       content: text,
+      isReply: (replyMessageId != null),
+      replyMessageId: replyMessageId,
     );
 
     state = AsyncData(state.value!.copyWith(isSending: false));

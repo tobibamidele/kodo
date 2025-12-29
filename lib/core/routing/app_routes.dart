@@ -7,4 +7,7 @@ class AppRoutes {
   static const String home = "/home";
   static const String findUser = "/find_user";
   static const String chat = "/chat";
+  static const String settings = "/settings";
+  static const String qrCode = "/qrCode";
+  static const String error = "/error";
 }

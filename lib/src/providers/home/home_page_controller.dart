@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kodo/core/routing/app_routes.dart';
 import 'package:kodo/src/models/chat_tile_model.dart';
+import 'package:kodo/src/models/user_model.dart';
+import 'package:kodo/src/providers/user_provider.dart';
+import 'package:kodo/src/services/auth_service.dart';
 import 'package:kodo/src/services/chat_service.dart';
 import 'package:kodo/src/services/storage_service.dart';
 import 'package:kodo/src/state/home/home_page_state.dart';
@@ -14,13 +17,21 @@ class HomePageController extends Notifier<HomePageState> {
 
   @override
   HomePageState build() {
-    final cached = storage.getChatTiles();
+    final cachedTiles = storage.getChatTiles();
+    final cachedUser = storage.getUser(AuthService.currentUser?.uid ?? "");
 
     if (!_listening) {
       _listening = true;
       _listenToChatTileStream();
     }
-    return HomePageState(chatTiles: cached, stories: []);
+
+    _checkIfUserExists();
+
+    return HomePageState(
+      isUserCreated: (cachedUser == null),
+      chatTiles: cachedTiles,
+      stories: [],
+    );
   }
 
   void _listenToChatTileStream() {
@@ -28,6 +39,19 @@ class HomePageController extends Notifier<HomePageState> {
       next.whenData((tiles) async {
         state = state.copyWith(chatTiles: tiles);
         await storage.cacheChatTiles(tiles);
+      });
+    });
+  }
+
+  void _checkIfUserExists() {
+    ref.listen<AsyncValue<KodoUser?>>(userProvider, (previous, next) async {
+      next.whenData((user) async {
+        if (user == null) {
+          state = state.copyWith(isUserCreated: false);
+        } else {
+          state = state.copyWith(isUserCreated: true);
+          storage.cacheUser(user);
+        }
       });
     });
   }

@@ -8,6 +8,8 @@ import 'package:kodo/src/screens/onboarding/login.dart';
 import 'package:kodo/src/screens/onboarding/onboarding.dart';
 import 'package:kodo/src/screens/onboarding/profile_setup_page.dart';
 import 'package:kodo/src/screens/onboarding/register.dart';
+import 'package:kodo/src/screens/settings/qr_code_page.dart';
+import 'package:kodo/src/screens/settings/settings_page.dart';
 import 'package:kodo/src/services/auth_service.dart';
 
 class AppRouter {
@@ -54,6 +56,14 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.findUser,
         builder: (context, state) => const FindUserPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.qrCode,
+        builder: (context, state) => const QrCodePage(),
       ),
       GoRoute(
         path: AppRoutes.chat,

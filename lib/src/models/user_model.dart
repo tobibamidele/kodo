@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kodo/utils/helpers.dart';
 
 class KodoUser {
   final String id;
@@ -39,7 +42,8 @@ class KodoUser {
     );
   }
 
-  factory KodoUser.fromMap(Map<String, dynamic> data) {
+  factory KodoUser.fromMap(Map map) {
+    final data = Map<String, dynamic>.from(map);
     return KodoUser(
       id: data['id'],
       username: data['username'],
@@ -48,8 +52,8 @@ class KodoUser {
       photoUrl: data['photoUrl'],
       about: data['about'],
       isOnline: data['isOnline'],
-      lastSeen: data['lastSeen'],
-      createdAt: data['createdAt'],
+      lastSeen: parseTimestamp(data['lastSeen']),
+      createdAt: parseTimestamp(data['createdAt']),
     );
   }
 
@@ -62,8 +66,13 @@ class KodoUser {
       'photoUrl': photoUrl,
       'about': about,
       'isOnline': isOnline,
-      'lastSeen': lastSeen,
-      'createdAt': createdAt,
+      'lastSeen': lastSeen.toDate().toIso8601String(),
+      'createdAt': createdAt.toDate().toIso8601String(),
     };
+  }
+
+  @override
+  String toString() {
+    return jsonEncode(toMap());
   }
 }

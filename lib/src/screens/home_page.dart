@@ -34,26 +34,37 @@ class _HomePageState extends ConsumerState<HomePage> {
       appBar: AppBar(
         title: Text("Kodo", style: Theme.of(context).textTheme.titleMedium),
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: (homeState.isUserCreated) ? () {} : () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: (homeState.isUserCreated)
+                ? () => context.push(AppRoutes.settings)
+                : () {},
+          ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        tooltip: "New chat",
-        child: const Icon(Icons.add, color: Colors.black),
-        onPressed: () {
-          ref
-              .read(homePageControllerProvider.notifier)
-              .onFloatingActionButtonPressed(context);
-        },
-      ),
-      body: buildHomePage(homeState),
+      floatingActionButton: (homeState.isUserCreated)
+          ? FloatingActionButton(
+              backgroundColor: Theme.of(context).primaryColor,
+              tooltip: "New chat",
+              child: const Icon(Icons.add, color: Colors.black),
+              onPressed: () {
+                ref
+                    .read(homePageControllerProvider.notifier)
+                    .onFloatingActionButtonPressed(context);
+              },
+            )
+          : const SizedBox.shrink(),
+      body: (homeState.isUserCreated)
+          ? buildHomePage(homeState)
+          : buildCreateUserView(),
     );
   }
 
   Widget buildHomePage(HomePageState state) {
-    print('tiles: ${state.chatTiles.length}');
     final controller = ref.read(homePageControllerProvider.notifier);
     return SafeArea(
       child: CustomScrollView(
@@ -87,6 +98,34 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildCreateUserView() {
+    return SafeArea(
+      child: Center(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              "Configure your kodo account to continue",
+              style: TextStyle(fontSize: 15, color: Colors.white),
+            ),
+            FractionallySizedBox(
+              widthFactor: 1,
+              child: ElevatedButton(
+                onPressed: () => context.push(AppRoutes.profileSetup),
+                child: Text(
+                  "Continue",
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium!.copyWith(color: Colors.black),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

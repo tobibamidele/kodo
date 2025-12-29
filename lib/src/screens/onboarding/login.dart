@@ -143,7 +143,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   password: state.password,
                                 );
                                 if (!mounted) return;
-                                context.goNamed(AppRoutes.home);
+                                context.pushReplacement(AppRoutes.home);
                               } on FirebaseAuthException catch (e) {
                                 print("Error: $e");
                                 controller.setError(e.message ?? "");
@@ -167,7 +167,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
             Center(
               child: TextButton(
-                onPressed: () => context.pushNamed(AppRoutes.register),
+                onPressed: () => context.pushReplacement(AppRoutes.register),
                 child: Text(
                   "Don't have an account? Register.",
                   style: Theme.of(
@@ -194,6 +194,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           controller: emailController,
           textInputType: TextInputType.emailAddress,
           focusNode: emailFocusNode,
+          maxLines: 1,
           labelText: "Email",
           onSubmitted: () =>
               FocusScope.of(context).requestFocus(passwordFocusNode),
@@ -211,6 +212,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           controller: passwordController,
           textInputType: TextInputType.visiblePassword,
           focusNode: passwordFocusNode,
+          maxLines: 1,
           labelText: "Password",
           onSubmitted: () {},
           onChanged: (value) {
